@@ -3,16 +3,7 @@
 
 FROM ubi:8.9-1160
 RUN yum -y update; yum clean all && \
-    yum -y install openssh-server openssh-clients passwd sudo; yum clean all
-
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-    rm -f /lib/systemd/system/multi-user.target.wants/*; \
-    rm -f /etc/systemd/system/*.wants/*; \
-    rm -f /lib/systemd/system/local-fs.target.wants/*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*; \
-    rm -f /lib/systemd/system/anaconda.target.wants/*;
+    yum -y install openssh-server openssh-clients passwd sudo; yum clean all 
 
 RUN mkdir /var/run/sshd; \
     ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''; \
@@ -32,6 +23,5 @@ ADD https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub 
 RUN chmod 600 /home/vagrant/.ssh/authorized_keys; \
     chown -R vagrant:vagrant /home/vagrant/.ssh
 
-VOLUME [ "/sys/fs/cgroup" ]
-
-CMD ["/usr/sbin/init"]
+VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+CMD ["/lib/systemd/systemd"]
