@@ -11,18 +11,7 @@ RUN apt-get update && \
         wget \
         vim-tiny && \
     apt-get -qq clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Enable systemd (from Matthew Warman's mcwarman/vagrant-provider)
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-    rm -f /lib/systemd/system/multi-user.target.wants/*; \
-    rm -f /etc/systemd/system/*.wants/*; \
-    rm -f /lib/systemd/system/local-fs.target.wants/*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*; \
-    rm -f /lib/systemd/system/anaconda.target.wants/*; \
-    ln -s /lib/systemd/systemd /usr/sbin/init;
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
 
 # Enable ssh for vagrant
 RUN systemctl enable ssh.service; 
@@ -41,6 +30,5 @@ ADD https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant.pub 
 RUN chmod 600 /home/vagrant/.ssh/authorized_keys; \
     chown -R vagrant:vagrant /home/vagrant/.ssh
 
-# Run the init daemon
-VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
+VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+CMD ["/lib/systemd/systemd"]
